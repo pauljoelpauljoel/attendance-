@@ -144,7 +144,16 @@ app.get('/api/attendance', async (req, res) => {
 app.post('/api/attendance', async (req, res) => {
   const { name, regNo, status, day, session } = req.body;
   const tableName = getTableName(day, session);
-  const timestamp = new Date().toLocaleString();
+  const timestamp = new Date().toLocaleString('en-IN', { 
+    timeZone: 'Asia/Kolkata',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
   
   try {
     // Ensure table exists just in case it's a new day/session not in the array
