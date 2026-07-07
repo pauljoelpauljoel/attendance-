@@ -167,10 +167,10 @@ app.post('/api/attendance', async (req, res) => {
 
 // Delete attendance record
 app.delete('/api/attendance', async (req, res) => {
-  const { day, session, regNo, timestamp } = req.body;
+  const { day, session, regNo } = req.body;
   const tableName = getTableName(day, session);
   try {
-    await pool.query(`DELETE FROM ${tableName} WHERE "regNo" = $1 AND timestamp = $2`, [regNo, timestamp]);
+    await pool.query(`DELETE FROM ${tableName} WHERE "regNo" = $1`, [regNo]);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -12,7 +12,9 @@ export const saveAttendance = async (student) => {
 
 export const getAttendance = async (day, session) => {
   if (!day || !session) return [];
-  const response = await fetch(`${API_URL}/attendance?day=${encodeURIComponent(day)}&session=${encodeURIComponent(session)}`);
+  const response = await fetch(`${API_URL}/attendance?day=${encodeURIComponent(day)}&session=${encodeURIComponent(session)}`, {
+    cache: 'no-store'
+  });
   if (!response.ok) throw new Error('Failed to fetch attendance');
   return await response.json();
 };
@@ -29,7 +31,9 @@ export const deleteAttendance = async (studentToDelete) => {
 
 // --- Registered Students ---
 export const getRegisteredStudents = async () => {
-  const response = await fetch(`${API_URL}/registered`);
+  const response = await fetch(`${API_URL}/registered`, {
+    cache: 'no-store'
+  });
   if (!response.ok) throw new Error('Failed to fetch registered students');
   return await response.json();
 };
