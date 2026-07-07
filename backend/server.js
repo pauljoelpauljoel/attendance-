@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const connectionString = 'postgresql://postgres:Pauljoel@@2007@db.vmrakfpmjwhwnekfjapf.supabase.co:5432/postgres';
+const connectionString = 'postgresql://postgres.vmrakfpmjwhwnekfjapf:Pauljoel@@2007@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres';
 
 const pool = new Pool({
   connectionString,
