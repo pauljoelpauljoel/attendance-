@@ -63,3 +63,22 @@ export const clearAllRegisteredStudents = async () => {
   if (!response.ok) throw new Error('Failed to clear registered students');
   return await response.json();
 };
+
+// --- Session Settings ---
+export const getSessionSettings = async () => {
+  const response = await fetch(`${API_URL}/settings/sessions`, {
+    cache: 'no-store'
+  });
+  if (!response.ok) return [];
+  return await response.json();
+};
+
+export const updateSessionSetting = async (day, session, isBlocked) => {
+  const response = await fetch(`${API_URL}/settings/sessions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ day, session, isBlocked })
+  });
+  if (!response.ok) throw new Error('Failed to update session setting');
+  return await response.json();
+};

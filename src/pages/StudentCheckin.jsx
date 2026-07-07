@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { saveAttendance, getAttendance } from '../services/api';
+import { saveAttendance, getAttendance, getSessionSettings } from '../services/api';
 import ThemeToggle from '../components/ThemeToggle';
 
 const SESSIONS = [
@@ -18,6 +18,7 @@ const StudentCheckin = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [statusMessage, setStatusMessage] = useState(null);
   const [attendanceStatus, setAttendanceStatus] = useState({});
+  const [blockedSessions, setBlockedSessions] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,6 +36,18 @@ const StudentCheckin = () => {
           }
         }
       }
+      
+      try {
+        const settings = await getSessionSettings();
+        const newBlocked = {};
+        settings.forEach(s => {
+          if (s.is_blocked) newBlocked[`${s.day}-${s.session}`] = true;
+        });
+        setBlockedSessions(newBlocked);
+      } catch (e) {
+        console.error("Failed to load settings", e);
+      }
+      
       setAttendanceStatus(newStatus);
       setLoading(false);
     };
@@ -77,7 +90,7 @@ const StudentCheckin = () => {
   };
 
   const handlePresent = async (day, session) => {
-    if (attendanceStatus[`${day}-${session}`]) return;
+    if (attendanceStatus[`${day}-${session}`] || blockedSessions[`${day}-${session}`]) return;
 
     try {
       await saveAttendance({ name, regNo, status: 'Present', day, session });
@@ -122,19 +135,20 @@ const StudentCheckin = () => {
             <div className="sessions-grid">
               {SESSIONS.map((session, i) => {
                 const present = checkIsPresent(day, session);
+                const isBlocked = blockedSessions[`${day}-${session}`] && !present;
                 return (
                   <div 
                     key={session} 
-                    className={`session-item ${present ? 'is-present' : ''}`}
+                    className={`session-item ${present ? 'is-present' : ''} ${isBlocked ? 'is-blocked' : ''}`}
                     style={{ animation: `slideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${i * 0.1}s both` }}
                   >
                     <span className="session-name">{session}</span>
                     <button 
-                      className={`btn ${present ? 'btn-disabled' : 'btn-primary'}`}
+                      className={`btn ${present ? 'btn-disabled' : isBlocked ? 'btn-danger' : 'btn-primary'}`}
                       onClick={() => handlePresent(day, session)}
-                      disabled={present}
+                      disabled={present || isBlocked}
                     >
-                      {present ? 'Present' : 'Mark Present'}
+                      {present ? 'Present' : isBlocked ? 'Blocked' : 'Mark Present'}
                     </button>
                   </div>
                 );

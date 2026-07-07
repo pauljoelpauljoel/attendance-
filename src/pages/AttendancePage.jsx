@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAttendance, deleteAttendance, getRegisteredStudents } from '../services/api';
+import { getAttendance, deleteAttendance, getRegisteredStudents, getSessionSettings, updateSessionSetting } from '../services/api';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
@@ -19,6 +19,7 @@ const AttendancePage = () => {
   const [attendanceData, setAttendanceData] = useState([]);
   const [presentStudents, setPresentStudents] = useState([]);
   const [absentStudents, setAbsentStudents] = useState([]);
+  const [isSessionBlocked, setIsSessionBlocked] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, title: '', onConfirm: null });
 
   useEffect(() => {
@@ -39,9 +40,14 @@ const AttendancePage = () => {
     try {
       const data = await getAttendance(filterDay, filterSession);
       setAttendanceData(data);
+      
+      const settings = await getSessionSettings();
+      const currentSetting = settings.find(s => s.day === filterDay && s.session === filterSession);
+      setIsSessionBlocked(currentSetting ? currentSetting.is_blocked : false);
     } catch (err) {
       console.error("Failed to load attendance", err);
       setAttendanceData([]);
+      setIsSessionBlocked(false);
     }
   };
 
@@ -67,6 +73,16 @@ const AttendancePage = () => {
         }
       }
     });
+  };
+
+  const handleToggleBlock = async () => {
+    try {
+      const newStatus = !isSessionBlocked;
+      await updateSessionSetting(filterDay, filterSession, newStatus);
+      setIsSessionBlocked(newStatus);
+    } catch (err) {
+      console.error("Failed to toggle session block", err);
+    }
   };
 
   const downloadPDF = (type) => {
@@ -179,6 +195,16 @@ const AttendancePage = () => {
               <option key={session} value={session}>{session}</option>
             ))}
           </select>
+        </div>
+
+        <div style={{ flex: 1, minWidth: '200px', display: 'flex', alignItems: 'flex-end' }}>
+          <button 
+            className={`btn ${isSessionBlocked ? 'btn-success' : 'btn-danger'}`}
+            style={{ padding: '10px 20px', fontWeight: 'bold' }}
+            onClick={handleToggleBlock}
+          >
+            {isSessionBlocked ? '🔓 Unblock Session' : '🔒 Block Session'}
+          </button>
         </div>
       </div>
 

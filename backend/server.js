@@ -61,6 +61,18 @@ const initializeTables = async () => {
         `);
       }
     }
+
+    // 3. Session Settings (for blocking/unblocking sessions)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS session_settings (
+        id SERIAL PRIMARY KEY,
+        day VARCHAR(50),
+        session VARCHAR(100),
+        is_blocked BOOLEAN DEFAULT false,
+        UNIQUE(day, session)
+      )
+    `);
+
     console.log("✅ All tables created/verified successfully.");
   } catch (err) {
     console.error("❌ Error creating tables:", err);
@@ -172,6 +184,34 @@ app.delete('/api/attendance', async (req, res) => {
   try {
     await pool.query(`DELETE FROM ${tableName} WHERE "regNo" = $1`, [regNo]);
     res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- SESSION SETTINGS (BLOCK/UNBLOCK) ---
+
+app.get('/api/settings/sessions', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM session_settings');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/settings/sessions', async (req, res) => {
+  const { day, session, isBlocked } = req.body;
+  try {
+    const result = await pool.query(
+      `INSERT INTO session_settings (day, session, is_blocked) 
+       VALUES ($1, $2, $3) 
+       ON CONFLICT (day, session) DO UPDATE SET 
+       is_blocked = EXCLUDED.is_blocked
+       RETURNING *`,
+      [day, session, isBlocked]
+    );
+    res.json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
