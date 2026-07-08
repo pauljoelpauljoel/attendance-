@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import QRCode from 'react-qr-code';
+import jsPDF from 'jspdf';
 import { getRegisteredStudents, saveRegisteredStudent, deleteRegisteredStudent, clearAllRegisteredStudents } from '../services/api';
 
 const RegistrationPage = () => {
@@ -112,11 +113,18 @@ const RegistrationPage = () => {
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0);
-      const pngFile = canvas.toDataURL('image/png');
-      const downloadLink = document.createElement('a');
-      downloadLink.download = `QR_${regNo}.png`;
-      downloadLink.href = `${pngFile}`;
-      downloadLink.click();
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      });
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      
+      const safeName = (name || 'Student').replace(/[^a-zA-Z0-9 ]/g, "").trim();
+      const safeRegNo = (regNo || 'Unknown').replace(/\//g, "-").replace(/[^a-zA-Z0-9-]/g, "");
+      pdf.save(`${safeName} - ${safeRegNo}.pdf`);
     };
     
     img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
@@ -137,13 +145,18 @@ const RegistrationPage = () => {
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, padding, padding, img.width, img.height);
-      const pngFile = canvas.toDataURL('image/png');
-      const downloadLink = document.createElement('a');
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      });
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      
       const safeName = (student.name || 'Student').replace(/[^a-zA-Z0-9 ]/g, "").trim();
       const safeRegNo = (student.reg_no || student.regNo || 'Unknown').replace(/\//g, "-").replace(/[^a-zA-Z0-9-]/g, "");
-      downloadLink.download = `${safeName}-${safeRegNo}.png`;
-      downloadLink.href = `${pngFile}`;
-      downloadLink.click();
+      pdf.save(`${safeName} - ${safeRegNo}.pdf`);
     };
     img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
   };
@@ -188,7 +201,7 @@ const RegistrationPage = () => {
   return (
     <div>
       <div className="card" style={{ maxWidth: '850px', margin: '0 auto 30px auto' }}>
-        <h2 className="card-title">Student Registration</h2>
+        <h2 className="card-title">Flutter Workshop Registration</h2>
         
         <form onSubmit={handleGenerate}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '15px' }}>

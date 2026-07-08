@@ -11,7 +11,7 @@ const Navigation = () => {
 
   return (
     <nav className="glass-nav">
-      <div className="nav-brand">QR Attendance</div>
+      <div className="nav-brand">Flutter Workshop</div>
       <div className="nav-links">
         <NavLink to="/" end>Registration</NavLink>
         <NavLink to="/scanner">Scanner</NavLink>
