@@ -92,7 +92,7 @@ const Ticket = ({ student, id }) => (
 
           <div style={{ background: 'linear-gradient(90deg, rgba(56, 189, 248, 0.15) 0%, transparent 100%)', borderLeft: '3px solid #38bdf8', padding: '10px 15px', borderRadius: '0 8px 8px 0' }}>
             <div style={{ fontFamily: "'Dancing Script', cursive", fontSize: '1.4rem', color: '#38bdf8', letterSpacing: '1px', fontWeight: '700', marginBottom: '2px' }}>Time</div>
-            <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '1.1rem', color: '#cbd5e1', fontWeight: '300', letterSpacing: '1px' }}>9 AM - 5 PM</div>
+            <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '1.1rem', color: '#cbd5e1', fontWeight: '300', letterSpacing: '1px' }}>8:30 AM -<br/>5 PM</div>
           </div>
 
           <div style={{ background: 'linear-gradient(90deg, rgba(232, 121, 249, 0.15) 0%, transparent 100%)', borderLeft: '3px solid #e879f9', padding: '10px 15px', borderRadius: '0 8px 8px 0' }}>
@@ -436,7 +436,7 @@ const RegistrationPage = () => {
         const safeRegNo = (student.reg_no || student.regNo || 'Unknown').replace(/\//g, "-").replace(/[^a-zA-Z0-9-]/g, "");
         
         const link = document.createElement('a');
-        link.download = `Flutter_Workshop_VIP_Access_Pass_${safeName}_${safeRegNo}.png`;
+        link.download = `Flutter_Workshop_Entry_Ticket_${safeName}_${safeRegNo}.png`;
         link.href = imgData;
         link.click();
       }
@@ -456,10 +456,10 @@ const RegistrationPage = () => {
         try {
           const safeName = (student.name || 'Student').replace(/[^a-zA-Z0-9 ]/g, "").trim().replace(/\s+/g, "_");
           const safeRegNo = (student.reg_no || student.regNo || 'Unknown').replace(/\//g, "-").replace(/[^a-zA-Z0-9-]/g, "");
-          const file = new File([blob], `Flutter_Workshop_VIP_Access_Pass_${safeName}_${safeRegNo}.png`, { type: 'image/png' });
+          const file = new File([blob], `Flutter_Workshop_Entry_Ticket_${safeName}_${safeRegNo}.png`, { type: 'image/png' });
           if (navigator.share) {
             await navigator.share({
-              title: `Flutter Workshop VIP Access Pass for ${student.name}`,
+              title: `Flutter Workshop Entry Ticket for ${student.name}`,
               files: [file]
             });
         } else {
