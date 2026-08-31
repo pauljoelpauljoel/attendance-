@@ -266,14 +266,18 @@ app.post('/api/settings/sessions', async (req, res) => {
   }
 });
 
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, '../dist')));
+// Serve static files from the React app only if not on Vercel
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  app.use(express.static(path.join(__dirname, '../dist')));
+  app.use((req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
+  });
+}
 
-// The "catchall" handler: for any request that doesn't
-// match one above, send back React's index.html file.
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, '../dist/index.html'));
-});
+// Only listen if not running on Vercel (Vercel handles listening internally)
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
+}
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
+module.exports = app;
